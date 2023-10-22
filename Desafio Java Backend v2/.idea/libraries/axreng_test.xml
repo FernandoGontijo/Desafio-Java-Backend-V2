@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="axreng-test">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/axreng-test.zip!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
