@@ -4,19 +4,20 @@ import com.axreng.backend.enums.StatusEnum;
 import com.google.gson.Gson;
 
 import java.util.List;
+import java.util.Set;
 
 public class GetCrawlResponse {
 
     private String id;
     private StatusEnum status;
-    private List<String> urls;
+    private Set<String> urls;
 
 
-    public List<String> getUrls() {
+    public Set<String> getUrls() {
         return urls;
     }
 
-    public void setUrls(List<String> urls) {
+    public void setUrls(Set<String> urls) {
         this.urls = urls;
     }
 

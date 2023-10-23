@@ -3,29 +3,27 @@ package com.axreng.backend.model;
 import com.axreng.backend.enums.StatusEnum;
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 public class CrawlResult {
 
     private StatusEnum status;
-    private List<String> urls;
+    private Set<String> urls;
     private Date startSearch;
     private Date endSearch;
 
     public CrawlResult(StatusEnum status) {
         this.status = status;
         this.startSearch = new Date();
-        this.urls = new ArrayList<>();
+        this.urls = new HashSet<>();
     }
 
-    public List<String> getUrls() {
+    public Set<String> getUrls() {
         return urls;
     }
 
-    public void setUrls(List<String> urls) {
+    public void setUrls(Set<String> urls) {
         this.urls = urls;
     }
 
