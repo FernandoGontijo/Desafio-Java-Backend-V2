@@ -3,7 +3,6 @@ package com.axreng.backend.response;
 import com.axreng.backend.enums.StatusEnum;
 import com.google.gson.Gson;
 
-import java.util.List;
 import java.util.Set;
 
 public class GetCrawlResponse {

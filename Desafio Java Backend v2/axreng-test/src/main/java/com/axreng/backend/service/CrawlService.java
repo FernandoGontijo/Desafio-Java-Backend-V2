@@ -68,11 +68,14 @@ public class CrawlService {
 
                 if (pageText.toLowerCase().contains(keyword.toLowerCase())) {
 
-                    CrawlResult crawlResult = searchs.get(id);
-                    Set<String> listUrls = crawlResult.getUrls();
-                    listUrls.add(url);
-                    crawlResult.setUrls(listUrls);
-                    searchs.put(id, crawlResult);
+                    searchs.compute(id, (key, value) -> {
+                        if (value != null) {
+                            Set<String> listUrls = value.getUrls();
+                            listUrls.add(url);
+                            value.setUrls(listUrls);
+                        }
+                        return value;
+                    });
 
                     foundUrls.add(url);
                 }
@@ -96,7 +99,7 @@ public class CrawlService {
         logger.info("Finishing search for the keyword: {}", keyword);
     }
 
-    private static String getHtmlContent(String url) {
+    public static String getHtmlContent(String url) {
 
         StringBuilder htmlContent = new StringBuilder();
 
@@ -177,6 +180,8 @@ public class CrawlService {
         final String CHARACTERS = "abcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom random = new SecureRandom();
         String generatedId;
+        int maxAttempts = 100;
+        int attempts = 0;
 
         do {
             StringBuilder codeBuilder = new StringBuilder(8);
@@ -186,7 +191,8 @@ public class CrawlService {
                 codeBuilder.append(randomChar);
             }
             generatedId = codeBuilder.toString();
-        } while (!VerifyId(generatedId));
+            attempts++;
+        } while (!VerifyId(generatedId) && attempts < maxAttempts);
 
         return generatedId;
     }

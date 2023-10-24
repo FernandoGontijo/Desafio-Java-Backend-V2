@@ -1,24 +1,17 @@
 package service;
 
-import com.axreng.backend.enums.StatusEnum;
-import com.axreng.backend.model.CrawlResult;
 import com.axreng.backend.service.CrawlService;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 public class CrawlServiceTest {
@@ -34,18 +27,12 @@ public class CrawlServiceTest {
         openMocks(this);
     }
 
-//    @Test
-//    public void testStartCrawl() {
-//        String keyword = "testKeyword";
-//        String id = "testId";
-//        CrawlResult mockCrawlResult = new CrawlResult(StatusEnum.DONE);
-//
-//        when(crawlService.searchs.put(any(), any())).thenReturn(mockCrawlResult);
-//
-//        String result = crawlService.startCrawl(keyword);
-//
-//        assertThat(result, equalTo(id));
-//    }
+    @Test
+    public void testStartCrawl_Success() {
+        String keyword = "testKeyword";
+        crawlService.startCrawl(keyword);
+        assertThat(crawlService.searchs.isEmpty(), CoreMatchers.is(false));
+    }
 
     @Test
     public void testExtractLinks() throws MalformedURLException {
@@ -58,6 +45,14 @@ public class CrawlServiceTest {
 
         assertThat(result, containsInAnyOrder( "http://hiring.axreng.com/htmlman2/execve.2.html"));
     }
+
+
+    @Test
+    public void testGetHtmlContent() {
+        String htmlContent = CrawlService.getHtmlContent(crawlService.baseUrl);
+        assertThat(htmlContent.isEmpty(), CoreMatchers.is(false));
+    }
+
 
 }
 
