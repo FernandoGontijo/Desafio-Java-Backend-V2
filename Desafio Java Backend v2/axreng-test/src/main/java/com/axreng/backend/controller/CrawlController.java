@@ -1,6 +1,5 @@
 package com.axreng.backend.controller;
 
-import com.axreng.backend.Main;
 import com.axreng.backend.model.CrawlResult;
 import com.axreng.backend.response.GetCrawlResponse;
 import com.axreng.backend.response.PostCrawlResponse;
@@ -17,8 +16,6 @@ public class CrawlController {
 
     static final Logger logger = LoggerFactory.getLogger(CrawlController.class);
     public static Route postCrawl = (Request request, Response response) -> {
-
-        logger.info("Method POST");
 
         String requestBody = request.body();
         JsonObject json = JsonParser.parseString(requestBody).getAsJsonObject();
@@ -45,13 +42,11 @@ public class CrawlController {
 
     public static Route getCrawl = (Request request, Response response) -> {
 
-        logger.info("Method POST");
-
         String id = request.params(":id");
         CrawlResult result = CrawlService.getCrawlResult(id);
         if (result == null) {
             response.status(404);
-            return "Busca não encontrada.";
+            return "Search not found.";
         }
 
         GetCrawlResponse getCrawlResponse = new GetCrawlResponse();

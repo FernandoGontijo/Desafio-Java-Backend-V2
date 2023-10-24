@@ -22,42 +22,36 @@ public class CrawlService {
     static final Logger logger = LoggerFactory.getLogger(CrawlService.class);
 
     public static String baseUrl = System.getenv("BASE_URL");
-    public static  ConcurrentHashMap<String, CrawlResult> searchs = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, CrawlResult> searchs = new ConcurrentHashMap<>();
 
     public static String startCrawl(String keyword) {
 
-        logger.info("Iniciando método Post com a keyword {}", keyword);
-
-        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        ExecutorService termSearchExecutor = Executors.newFixedThreadPool(10);
 
         String id = GenerateId();
 
-        logger.info("{} Id gerado para a keyword {}", id, keyword);
+        logger.info("Starting search - ID: {}", id);
 
         searchs.put(id, new CrawlResult(StatusEnum.ACTIVE));
 
-        logger.info("Search do id {} antes de iniciar a busca {}",id,  searchs.get(id));
+        CompletableFuture.runAsync(() -> findTermInPage(keyword, id), termSearchExecutor).thenRun(() -> {
 
-        CompletableFuture.supplyAsync(() -> findTermInPage(keyword, id))
-                .thenAccept(urls -> {
+            CrawlResult crawlResult = searchs.get(id);
+            crawlResult.setStatus(StatusEnum.DONE);
+            crawlResult.setEndSearch(new Date());
+            searchs.put(id, crawlResult);
 
-                    logger.info("URLS {}  do search do id {} no final da busca",searchs.get(id).getUrls(), id);
+            logger.info("Finishing search - ID: {}", id);
 
-                    CrawlResult crawlResult = searchs.get(id);
-                    crawlResult.setStatus(StatusEnum.DONE);
-                    crawlResult.setEndSearch(new Date());
-                    searchs.put(id, crawlResult);
-
-                    executorService.shutdown();
-                });
+        });
 
         return id;
     }
 
 
-    private static Set<String>  findTermInPage(String keyword, String id) {
+    private static void findTermInPage(String keyword, String id) {
 
-        logger.info("Iniciando método findTermInPage busca do Search do id {}",id);
+        logger.info("Starting search for the keyword: {}", keyword);
 
         Set<String> foundUrls = new HashSet<>();
         Set<String> visitedUrls = new HashSet<>();
@@ -90,23 +84,21 @@ public class CrawlService {
                 for (String linkedUrl : linkedUrls) {
                     if (!visitedUrls.contains(linkedUrl)
                             && !foundUrls.contains(linkedUrl)
-                                && !queue.contains(linkedUrl)) {
+                            && !queue.contains(linkedUrl)) {
                         queue.offer(linkedUrl);
                     }
                 }
 
-                logger.info("Tamanho da queue {} do id {}",queue.size(), id);
+                logger.info("Queue size: {} for ID: {}", queue.size(), id);
 
             } catch (Exception e) {
                 logger.error(e.toString());
             }
         }
-        return foundUrls;
-
-
+        logger.info("Finishing search for the keyword: {}", keyword);
     }
 
-    public static String getHtmlContent(String url) {
+    private static String getHtmlContent(String url) {
 
         StringBuilder htmlContent = new StringBuilder();
 
@@ -122,11 +114,11 @@ public class CrawlService {
 
             reader.close();
         } catch (MalformedURLException e) {
-            logger.error("A URL: {} não é válida", url);
+            logger.error("Invalid URL: {}", url);
         } catch (FileNotFoundException e) {
-            logger.error("A URL: {} não foi encontrada", url);
+            logger.error("URL not found: {}", url);
         } catch (Exception e) {
-            logger.error("Não foi possível acessar a URL: {}", url);
+            logger.error("Failed to access URL: {}", url);
         }
 
         return htmlContent.toString();
@@ -158,13 +150,16 @@ public class CrawlService {
                 }
             }
         }
-
         return links;
     }
 
-    public static boolean isValidURL(String urlString) {
+    private static boolean isValidURL(String urlString) {
         try {
             new URL(urlString);
+
+            if (urlString.contains("ftp:") || urlString.contains("mailto:")) {
+                return false;
+            }
             return true;
         } catch (MalformedURLException e) {
             return false;
@@ -173,26 +168,24 @@ public class CrawlService {
 
 
     public static CrawlResult getCrawlResult(String id) {
+        logger.info("Retrieving search results for ID: {}", id);
+        CrawlResult crawlResult = searchs.get(id);
+        return crawlResult;
+    }
 
-            CrawlResult crawlResult = searchs.get(id);
 
-            return crawlResult;
-        }
-
-
-    public static String GenerateId() {
+    private static String GenerateId() {
 
         final String CHARACTERS = "abcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom random = new SecureRandom();
 
-            StringBuilder codeBuilder = new StringBuilder(8);
-            for (int i = 0; i < 8; i++) {
-                int randomIndex = random.nextInt(CHARACTERS.length());
-                char randomChar = CHARACTERS.charAt(randomIndex);
-                codeBuilder.append(randomChar);
-            }
-            return codeBuilder.toString();
-
+        StringBuilder codeBuilder = new StringBuilder(8);
+        for (int i = 0; i < 8; i++) {
+            int randomIndex = random.nextInt(CHARACTERS.length());
+            char randomChar = CHARACTERS.charAt(randomIndex);
+            codeBuilder.append(randomChar);
+        }
+        return codeBuilder.toString();
     }
 
 }

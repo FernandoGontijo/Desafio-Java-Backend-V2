@@ -11,11 +11,9 @@ public class Main {
 
         final Logger logger = LoggerFactory.getLogger(Main.class);
 
-
         port(4567);
 
         logger.info("Starting application");
-
 
         post("/crawl", CrawlController.postCrawl);
         get("/crawl/:id", CrawlController.getCrawl);

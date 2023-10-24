@@ -11,6 +11,7 @@ import org.mockito.MockitoAnnotations;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
