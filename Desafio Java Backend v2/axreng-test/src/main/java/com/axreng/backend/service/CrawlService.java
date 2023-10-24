@@ -26,7 +26,7 @@ public class CrawlService {
 
     public static String startCrawl(String keyword) {
 
-        ExecutorService termSearchExecutor = Executors.newFixedThreadPool(10);
+        ExecutorService termSearchExecutor = Executors.newFixedThreadPool(100);
 
         String id = GenerateId();
 
@@ -38,7 +38,6 @@ public class CrawlService {
 
             CrawlResult crawlResult = searchs.get(id);
             crawlResult.setStatus(StatusEnum.DONE);
-            crawlResult.setEndSearch(new Date());
             searchs.put(id, crawlResult);
 
             logger.info("Finishing search - ID: {}", id);
@@ -57,7 +56,6 @@ public class CrawlService {
         Set<String> visitedUrls = new HashSet<>();
         Queue<String> queue = new ArrayDeque<>();
         queue.offer(baseUrl);
-
 
         while (!queue.isEmpty()) {
 
@@ -178,14 +176,27 @@ public class CrawlService {
 
         final String CHARACTERS = "abcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom random = new SecureRandom();
+        String generatedId;
 
-        StringBuilder codeBuilder = new StringBuilder(8);
-        for (int i = 0; i < 8; i++) {
-            int randomIndex = random.nextInt(CHARACTERS.length());
-            char randomChar = CHARACTERS.charAt(randomIndex);
-            codeBuilder.append(randomChar);
+        do {
+            StringBuilder codeBuilder = new StringBuilder(8);
+            for (int i = 0; i < 8; i++) {
+                int randomIndex = random.nextInt(CHARACTERS.length());
+                char randomChar = CHARACTERS.charAt(randomIndex);
+                codeBuilder.append(randomChar);
+            }
+            generatedId = codeBuilder.toString();
+        } while (!VerifyId(generatedId));
+
+        return generatedId;
+    }
+
+    private static boolean VerifyId(String id) {
+        if (searchs.containsKey(id)) {
+            return false;
+        } else {
+            return true;
         }
-        return codeBuilder.toString();
     }
 
 }

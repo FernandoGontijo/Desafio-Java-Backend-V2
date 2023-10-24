@@ -23,7 +23,6 @@ public class CrawlController {
 
         logger.info("keyword = {}", keyword);
 
-
         if (keyword == null || keyword.isEmpty()) {
             response.status(400);
             return "The 'keyword' parameter is mandatory.";
